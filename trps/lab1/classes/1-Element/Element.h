@@ -14,16 +14,16 @@ class Element{
     size_t flowRate; // норма расхода
     std::string unit; // единица измерения
 public:
-    size_t getElementCode();
-    void setElementCode();
-    size_t getMaterialCode();
-    void setMaterialCode();
-    size_t getWorkshopNum();
-    void setWorkshopNum();
-    size_t getFlowRate();
-    void setFlowRate();
-    std::string getUnit();
-    void setUnit();
+    size_t getElementCode() const;
+    void setElementCode(size_t new_code);
+    size_t getMaterialCode() const;
+    void setMaterialCode(size_t new_code);
+    size_t getWorkshopNum() const;
+    void setWorkshopNum(size_t new_num);
+    size_t getFlowRate() const;
+    void setFlowRate(size_t new_rate);
+    std::string getUnit() const;
+    void setUnit(std::string new_unit);
 };
 
 

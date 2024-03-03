@@ -4,7 +4,6 @@
 
 #include "Original.h"
 
-
 void Original::mergeSort() {
 
 }
@@ -17,14 +16,22 @@ void Original::resize() {
 
 }
 
-Node &Original::get(int index) {
+size_t Original::get(int index) {
     return <#initializer#>;
 }
 
-Node &Original::BinarySearch() {
+Element &Original::BinarySearch() {
     return <#initializer#>;
 }
 
-void Original::delMarker() {
+void
+Original::delMarker(size_t elementCode, size_t materialCode, size_t workshopNum, size_t flowRate, std::string unit) {
+    ++delCount;
 
 }
+
+void Original::insert(Element &element) {
+
+}
+
+

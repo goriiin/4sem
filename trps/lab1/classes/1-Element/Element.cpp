@@ -4,42 +4,42 @@
 
 #include "Element.h"
 
-size_t Element::getElementCode() {
-    return 0;
+size_t Element::getElementCode() const {
+    return elementCode;
 }
 
-void Element::setElementCode() {
-
+void Element::setElementCode(size_t new_code) {
+    elementCode = new_code;
 }
 
-size_t Element::getMaterialCode() {
-    return 0;
+size_t Element::getMaterialCode() const {
+    return materialCode;
 }
 
-void Element::setMaterialCode() {
-
+void Element::setMaterialCode(size_t new_code) {
+    materialCode = new_code;
 }
 
-size_t Element::getWorkshopNum() {
-    return 0;
+size_t Element::getWorkshopNum() const {
+    return workshopNum;
 }
 
-void Element::setWorkshopNum() {
-
+void Element::setWorkshopNum(size_t new_num){
+    workshopNum = new_num;
 }
 
-size_t Element::getFlowRate() {
-    return 0;
+size_t Element::getFlowRate() const {
+    return flowRate;
 }
 
-void Element::setFlowRate() {
-
+void Element::setFlowRate(size_t new_rate) {
+    flowRate = new_rate;
 }
 
-std::string Element::getUnit() {
-    return std::string();
+std::string Element::getUnit() const {
+    return unit;
 }
 
-void Element::setUnit() {
-
+void Element::setUnit(std::string new_unit) {
+    unit = std::move(new_unit);
 }
