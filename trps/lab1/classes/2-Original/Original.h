@@ -34,10 +34,6 @@ private:
             }
         }
     }
-public:
-    Element& get(int index); // получить элемент по индексу
-    [[maybe_unused]] size_t BinarySearch(size_t ElementCode, size_t workshopNum, size_t flowRate, std::string unit, std::string materialCode); // Бинарный поиск
-    [[maybe_unused]] void delMarker(size_t ElementCode, size_t workshopNum, size_t flowRate, std::string unit, std::string materialCode); // удаление маркером
     void mergeSort(std::vector<Element>& buf, size_t l, size_t r)
     {
         //! Условие выхода из рекурсии
@@ -50,16 +46,33 @@ public:
         mergeSort(buf, m+1, r);
         merge(buf, l, r, m);
     }
+public:
+    Element& get(int index); // получить элемент по индексу
+    [[maybe_unused]] size_t BinarySearch(size_t ElementCode, size_t workshopNum, size_t flowRate, std::string unit, std::string materialCode); // Бинарный поиск
+    [[maybe_unused]] void delMarker(size_t ElementCode, size_t workshopNum, size_t flowRate, std::string unit, std::string materialCode); // удаление маркером
 
+    void merge_sort(){
+        mergeSort(data,0, data.size());
+    }
     void sort(){
         mergeSort(data, 0, data.size());
         sorted = true;
     }
     [[maybe_unused]] void push(Element& element); // вставка
 
+    void markerDel(int ind){
+        data[ind].setDeleled(true);
+    }
+
     void qsort(){
         qsortRecursive(data, data.size());
     }
+
+    void del(int ind){
+        data[ind] = data[size-1];
+        --size
+    }
+
     void qsortRecursive(std::vector<Element> mas, int size) {
         //Указатели в начало и в конец массива
         int i = 0;
@@ -82,7 +95,7 @@ public:
 
             //Меняем элементы местами
             if (i <= j) {
-                int tmp = mas[i];
+                auto tmp = mas[i];
                 mas[i] = mas[j];
                 mas[j] = tmp;
 
@@ -99,9 +112,12 @@ public:
         }
         if (i < size) {
             //"Првый кусок"
-            qsortRecursive(&mas[i], size - i);
+            qsortRecursive(mas, size - i);
         }
     }
+
+
+
 };
 
 Element &Original::get(int index) {
