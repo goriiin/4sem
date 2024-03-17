@@ -1,136 +1,84 @@
-section .data              ; сегмент инициализированных переменных
-    InputMsgA dq "enter a: ",0
-    InputMsgK db "enter k: ",0
-    InputMsgR db "enter r: ",0
-    lenIn equ 10
+section .data   ; сегмент инициализированных переменных
 
-    OutStr dw 0
-    OutStrLen dq 0
+section .bss    ; сегмент неинициализированных переменных
+    A       resq 1
+    K       resq 1
+    R       resq 1
 
-    OutMsg dq "f = ", 0
-    lenOut equ $-OutMsg
+    OutBuf  resq 10 ; буфер вывода
+    OutLen  resq 1
+   
+    InBuf   resd 10 ; буфер для вводимой строки
+    LenIn equ $-InBuf
 
-    k8 dd 8
+section .text ; сегмент кода
+    global _start
 
-section .bss            ; сегмент неинициализированных переменных
-    InBuf   resb 10     ; буфер для вводимой строки
-    LenIn   equ  $-InBuf
-    OutBuf resb 10    ; буфер вывода
+; Функция ввода
+section .text
+   global input_func
+   input_func:
+      ; Чтение
+      mov  rax, 0
+      mov  rdi, 0
+      mov  rsi, InBuf
+      mov  rdx, LenIn
+      syscall
+      ; Перевод из строки в число
+      mov  rsi, InBuf
+      call StrToInt64
+      cmp  rbx, 0     ; проверка кода ошибки
+      jne  input_func ; при преобразовании обнаружена ошибка
 
-    a resd 4
-    k resd 4
-    r resd 4
+      ret
+;Функция вывода
+section .text
+   global output_func
+   output_func:
+      mov  rsi,      OutBuf ; загрузка адреса буфера вывода
+      call IntToStr64
+      mov  [OutLen], rax
 
+      mov rax, 1        ; 
+      mov rdi, 1        ; 
+      mov rsi, OutBuf   ; 
+      mov rdx, [OutLen] ; 
+      syscall; 
 
-section .text         ; сегмент кода
-    global  _start
-
-
-; Вычислить 
-; if k * a > 5 {
-    ;f = (k-5)^2/r
-;}else{
-    ;f = 8-a
-;}
+      ret
 
 _start:
-    ; Предложение ввести A
-    mov rax, 1
-    mov rdi, 1
-    mov rsi, InputMsgA
-    mov rdx, lenIn
-    syscall
+    ; input a k r
+    call input_func
+    mov [A], rax
 
-    ; Чтение A
-    mov rax, 0
-    mov rdi, 0
-    mov rsi, InBuf
-    mov rdx, LenIn
-    syscall
+    call input_func
+    mov [K], rax
 
-    ; Перевод A из строки в число
-    mov rsi, InBuf
-    call StrToInt64
-    mov [a], rax
+    call input_func
+    mov [R], rax
 
-    ; Предложение ввести K
-    mov rax, 1
-    mov rdi, 1
-    mov rsi, InputMsgK
-    mov rdx, lenIn
-    syscall
-
-    ; Чтение K
-    mov rax, 0
-    mov rdi, 0
-    mov rsi, InBuf
-    mov rdx, LenIn
-    syscall
-
-    ; Перевод K из строки в число
-    mov rsi, InBuf
-    call StrToInt64
-    mov [k], rax
-
-    mov rbx, [a]
-    mov rax, [k]
+    mov rbx, [K]
+    mov rax, [A]
     imul rbx
 
-    cmp rax, 5 ; сраниваем значения регистра RAX и регистра RBX
-    js else ; если произошло заимствование
-        ; Предложение ввести R
-        mov rax, 1
-        mov rdi, 1
-        mov rsi, InputMsgR
-        mov rdx, lenIn
-        syscall
-
-        ; Чтение R
-        mov rax, 0
-        mov rdi, 0
-        mov rsi, InBuf
-        mov rdx, LenIn
-        syscall
-
-        ; Перевод R из строки в число
-        mov rsi, InBuf
-        call StrToInt64
-        mov [r], rax
-
-        mov rax, [k]
+    cmp rax, 5
+    jle else
+        ; rax >= 5
+        mov rax, [K]
         sub rax, 5
-        mul rax
+        imul rax
 
-        mov rbx, [r]
-        idiv rbx 
-        jmp exit
-    else:
-        mov rax, [k8]
-        sub rax, [a]
+        idiv dword[R]
+    jmp end_if_else
+    else: ; rax < 5
+        mov rax, 8
+        sub rax, [A]
+end_if_else:
 
-    exit: 
-    mov [OutBuf], rax
-    mov rsi, OutBuf
-    call  IntToStr64
-
-    mov   [OutStrLen],  rax
-    mov [OutStr], rsi 
-
-    mov     rax, 1        ; системная функция 1 (write)
-    mov     rdi, 1        ; дескриптор файла stdout=1
-    mov     rsi, OutMsg ; адрес выводимой строки
-    mov     rdx, lenOut  ; длина строки
-    syscall               ; вызов системной функции
-
-    mov     rax, 0
-    mov     rax, 1        ; системная функция 1 (write)
-    mov     rdi, 1        ; дескриптор файла stdout=1
-    mov     rsi, [OutStr] ; адрес выводимой строки
-    mov     rdx, OutStrLen  ; длина строки
-    syscall               ; вызов системной функции
-
-   mov     rax, 60       ; системная функция 60 (exit)
-   xor     rdi, rdi      ; return code 0    
-   syscall               ; вызов системной функции
+    call output_func
+    mov     rax, 60  ; системная функция 60 (exit)
+    xor     rdi, rdi ; return code 0    
+    syscall          ; вызов системной функции
 
 %include "../lib.asm"

@@ -1,10 +1,9 @@
 section .data              ; сегмент инициализированных переменных 
-   f1 dd 65535
-   f2 dw 65535
-
+   f1 dw 65535
+   f2 dd 65535
 
 section .bss               ; сегмент неинициализированных переменных
-   X resd 1
+
 section .text         ; сегмент кода
    global  _start
 

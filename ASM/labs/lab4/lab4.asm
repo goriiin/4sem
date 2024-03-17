@@ -1,5 +1,6 @@
 %define MATRIX_SIZE 25
 %define ROW_LEN     5
+%define COUNT       5
 
 section .data ; сегмент инициализированных переменных
    ind dw 0
@@ -12,6 +13,8 @@ section .data ; сегмент инициализированных переме
 
    err_line     db  "Each line should have exactly 5 numbers divided by spaces", 10
    err_line_len equ $-err_line
+
+   line_sum times 5 dq 0
 
 section .bss ; сегмент неинициализированных переменных
    OutBuf resq 10 ; буфер вывода
@@ -61,6 +64,73 @@ section .text
       syscall; 
 
       ret
+      
+section .text
+   global matrix_input
+   matrix_input:
+      read_line: 
+         push rcx
+         push rdi
+
+         call input_func
+
+         pop rdi
+         mov rcx, rax
+         xor rdx, rdx
+         xor r10, r10 ; r10 - индекс числа в строке
+      process_line:
+         cmp byte[InBuf + rdx], 10
+         je  process_number
+
+         cmp byte[InBuf + rdx], ' '
+         jne next
+
+         mov byte[InBuf + rdx], 10
+
+         cmp r10, rdx
+         jne process_number
+         jmp next
+
+      process_number:
+         push rdx
+
+         call StrToInt64
+         cmp  rbx, 0
+         jne  error_num
+
+         cmp rdi, MATRIX_SIZE
+         jge error_line       ; обработка ошибки
+
+         mov [matrix + 8 * rdi], rax ; сохраняем число в матрице
+         inc rdi
+
+         pop rdx
+         mov r10, rdx
+         inc r10
+         lea rsi, [InBuf + r10]
+
+      next:
+         inc  rdx
+         loop process_line
+
+         pop rcx
+
+         mov  rax, ROW_LEN
+         sub  rax, rcx
+         inc  rax
+         push rdx
+         mov  rdx, ROW_LEN
+         mul  rdx
+         pop  rdx
+
+         cmp rdi, rax
+         jne error_line
+
+         dec rcx
+         cmp rcx, 0
+         jne read_line
+      
+      ret
 
 section .text ; сегмент кода
    global _start
@@ -68,68 +138,25 @@ section .text ; сегмент кода
 _start:
    mov rcx, ROW_LEN
    xor rdi, rdi
-read_line: 
-   push rcx
-   push rdi
 
-   call input_func
+   call matrix_input
 
-   pop rdi
-   mov rcx, rax
-   xor rdx, rdx
-   xor r10, r10 ; r10 - индекс числа в строке
-
-process_line:
-   cmp byte[InBuf + rdx], 10
-   je  process_number
-
-   cmp byte[InBuf + rdx], ' '
-   jne next
-
-   mov byte[InBuf + rdx], 10
-
-   cmp r10, rdx
-   jne process_number
-   jmp next
-
-process_number:
-   push rdx
-
-   call StrToInt64
-   cmp  rbx, 0
-   jne  error_num
-
-   cmp rdi, MATRIX_SIZE
-   jge error_line       ; обработка ошибки
-
-   mov [matrix + 8 * rdi], rax ; сохраняем число в матрице
-   inc rdi
-
-   pop rdx
-   mov r10, rdx
-   inc r10
-   lea rsi, [InBuf + r10]
-
-next:
-   inc  rdx
-   loop process_line
-
-   pop rcx
-
-   mov  rax, ROW_LEN
-   sub  rax, rcx
-   inc  rax
-   push rdx
-   mov  rdx, ROW_LEN
-   mul  rdx
-   pop  rdx
-
-   cmp rdi, rax
-   jne error_line
-
-   dec rcx
-   cmp rcx, 0
-   jne read_line
+   xor rax, rax
+   mov rcx, COUNT
+   mov edi, 0
+   
+   external_cycle:
+      push rcx 
+      mov rcx, COUNT
+      mov rbx, 0
+      inner_cycle:
+         add rax, [rbx + matrix]
+         inc rbx
+         loop inner_cycle
+      pop rcx 
+      mov [rcx + line_sum], rax
+      xor rax, rax
+      loop external_cycle
 
 
 exit:

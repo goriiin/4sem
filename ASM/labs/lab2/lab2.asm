@@ -1,135 +1,83 @@
-section .data        ; сегмент инициализированных переменных
-   OutMsg dq "a = ",0
-   lenOut equ $-OutMsg
-
-   InputMsgB dq "enter b: ",0
-   InputMsgC db "enter c: ",0
-   InputMsgD db "enter d: ",0
-   lenIn equ 10
-   
-   OutStr dw 0
-   OutStrLen dq 0
-   
+section .data ; сегмент инициализированных переменных
  
-section .bss         ; сегмент неинициализированных переменных
-   A resd 2
-   B resd 2
-   C resd 2
-   D resd 2
+section .bss  ; сегмент неинициализированных переменных
+   A resq 1
+   B resq 1
+   C resq 1
+   D resq 1
 
-   InBuf resb 10     ; буфер для вводимой строки
-   OutBuf resb 10    ; буфер вывода
-   LenIn   equ     $-InBuf 
+   OutBuf resq 10 ; буфер вывода
+   OutLen resq 1
+   
+   InBuf resd 10 ; буфер для вводимой строки
+   LenIn equ $-InBuf
+   
 
-section .text        ; сегмент кода
-        global  _start
+; Функция ввода
+section .text
+   global input_func
+   input_func:
+      ; Чтение
+      mov rax, 0
+      mov rdi, 0
+      mov rsi, InBuf
+      mov rdx, LenIn
+      syscall
+      ; Перевод из строки в число
+      mov  rsi, InBuf
+      call StrToInt64
+      cmp rbx, 0     ; проверка кода ошибки
+      jne input_func ; при преобразовании обнаружена ошибка
+
+      ret
+;Функция вывода
+section .text
+   global output_func
+   output_func:
+      mov rsi, OutBuf ; загрузка адреса буфера вывода
+      call IntToStr64
+      mov  [OutLen], rax
+
+      mov  rax, 1       ; 
+      mov  rdi, 1       ; 
+      mov  rsi, OutBuf  ; 
+      mov  rdx, [OutLen]     ; 
+      syscall; 
+
+      ret
+
+section .text ; сегмент кода
+   global _start
         
 ;    a = b * ( c - d ) - c / ( d - 1 )
-;    a = b * ( c - d ) + c / ( 1 - d )
-; делаем d отрицательным
-; нужно сделать деление  
 _start:
-   ; Предложение ввести b
-   mov rax, 1
-   mov rdi, 1
-   mov rsi, InputMsgB
-   mov rdx, lenIn
-   syscall
+   ; Вводим переменные 
+   call input_func
+   mov  [B], rax
 
-   ; Чтение b
-   mov rax, 0
-   mov rdi, 0
-   mov rsi, InBuf
-   mov rdx, LenIn
-   syscall
+   call input_func
+   mov  [C], rax
 
-   ; Перевод B из строки в число
-   mov rsi, InBuf
-   call StrToInt64
-   mov [B], rax
+   call input_func
+   mov  [D], rax
 
-   
-   ; Предложение ввести c
-   mov rax, 1
-   mov rdi, 1
-   mov rsi, InputMsgC
-   mov rdx, lenIn
-   syscall
-
-   ; Чтение c
-   mov rax, 0
-   mov rdi, 0
-   mov rsi, InBuf
-   mov rdx, LenIn
-   syscall
-
-   ; Перевод C из строки в число
-   mov rsi, InBuf
-   call StrToInt64
-   mov [C], rax
-
-   ; Предложение ввести D
-   mov rax, 1
-   mov rdi, 1
-   mov rsi, InputMsgD
-   mov rdx, lenIn
-   syscall
-
-   ; Чтение D
-   mov rax, 0
-   mov rdi, 0
-   mov rsi, InBuf
-   mov rdx, LenIn
-   syscall
- 
-   ; Перевод D из строки в число
-   mov rsi, InBuf
-   call StrToInt64
-   mov [D], rax
-
-   ;a = b * ( c - d ) + c / ( 1 - d )
-
-   mov rax, [C]
-   sub rax, [D]; -D + C
-
-   mov rbx, [B] 
-   imul rbx ; B * (-D + C)
-   mov [A], rax ; переносим результат в А
-
-   mov rax, 1
-   sub rax, [D]
-   mov [D], rax
-
-   mov rax, [C]
    mov rbx, [D]
+   dec rbx ; d - 1
+   mov rax, [C] 
+   idiv rbx ; c / ( d - 1 )
+   mov [A], rax
 
-   ; выполнить деление (знаковое)
-   ; результат будет в rax (частное) и rdx (остаток)
-   idiv rbx 
-   add rax, [A]
+   mov rbx, [C] ; c
+   sub rbx, [D] ; c - d
+   mov rax, [B] 
+   imul rbx ; b * ( c - d )
 
-   mov [OutBuf], rax
-   mov rsi, OutBuf
-   call  IntToStr64
+   sub rax, [A] ; b * ( c - d ) - c / ( d - 1 ) -- ответ
+   
+   call output_func
 
-   mov   [OutStrLen],  rax
-   mov [OutStr], rsi 
-
-   mov     rax, 1        ; системная функция 1 (write)
-   mov     rdi, 1        ; дескриптор файла stdout=1
-   mov     rsi, OutMsg ; адрес выводимой строки
-   mov     rdx, lenOut  ; длина строки
-   syscall               ; вызов системной функции
-
-   mov     rax, 0
-   mov     rax, 1        ; системная функция 1 (write)
-   mov     rdi, 1        ; дескриптор файла stdout=1
-   mov     rsi, [OutStr] ; адрес выводимой строки
-   mov     rdx, OutStrLen  ; длина строки
-   syscall               ; вызов системной функции
-
-   mov     rax, 60       ; системная функция 60 (exit)
-   xor     rdi, rdi      ; return code 0    
-   syscall               ; вызов системной функции
+   mov  rax, 60      ; 
+   xor  rdi, rdi     ; 
+   syscall; 
 
 %include "../lib.asm"
