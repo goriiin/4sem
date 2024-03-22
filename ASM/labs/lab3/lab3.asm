@@ -64,10 +64,11 @@ _start:
 
     cmp rax, 5
     jle else
-        ; rax >= 5
-        mov rax, [K]
-        sub rax, 5
-        imul rax
+;if 
+    ; rax >= 5
+    mov rax, [K]
+    sub rax, 5
+    imul rax
 
         idiv dword[R]
     jmp end_if_else

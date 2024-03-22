@@ -132,6 +132,20 @@ section .text
       
       ret
 
+section .text
+   global sum_row
+   sum_row:
+   mov rax, 0                  ; сумма элементов в строке
+   mov rcx, 5                  ; количество элементов в строке
+  mov rbx, rdi
+    imul rbx, rbx, 8  ; умножаем номер строки на размер строки
+    add rbx, matrix   ; добавляем смещение на адрес матрицы
+   .loop:
+      add  rax, [rbx] ; добавляем значение элемента к сумме
+      add  rbx, 8     ; переходим к следующему элементу
+      loop .loop
+   ret
+
 section .text ; сегмент кода
    global _start
 
@@ -145,19 +159,21 @@ _start:
    mov rcx, COUNT
    mov edi, 0
    
-   external_cycle:
-      push rcx 
-      mov rcx, COUNT
-      mov rbx, 0
-      inner_cycle:
-         add rax, [rbx + matrix]
-         inc rbx
-         loop inner_cycle
-      pop rcx 
-      mov [rcx + line_sum], rax
-      xor rax, rax
-      loop external_cycle
+   mov rdi, 0 ; номер строки (начиная с 0)
 
+.loop_rows:
+   call sum_row               ; вызов функции для подсчета суммы элементов строки
+   mov  [matrix + rdi*8], rax ; помещаем сумму на главную диагональ матрицы
+
+    ; сохраняем значение в регистре rax
+   mov rax, qword[matrix + rdi*8]
+
+    ; вызов функции output_func
+   ;  call output_func
+
+    inc rdi        ; переходим к следующей строке
+    cmp rdi, 5
+    jl  .loop_rows
 
 exit:
    ; exit
@@ -180,5 +196,7 @@ error_num:
     mov rdx, err_num_len
     syscall
     jmp exit
+
+
 
 %include "../lib.asm"
