@@ -1,7 +1,9 @@
 #include <iostream>
 #include <cstdlib>
 #include <malloc.h>
-#include <ctime>
+#include <chrono>
+#include <cmath>
+
 void qsortRecursive(double *mas, int size);
 void random_data(double* mas[], int size);
 double** new_memory(int size);
@@ -12,9 +14,10 @@ void out(double** mas, int size);
 
 void func1(){
     int N , i, j, k, l;
-    srand(time(0));
-    printf("Введите количество элементов: ");
+    printf("Введите количество элементов : ");
     scanf("%d",&N);
+
+    auto start = std::chrono::high_resolution_clock::now();
     double** a = (double**)malloc(sizeof(int*) * N);
     for(i = 0; i < N; i++)
         a[i] = (double*)malloc(sizeof(int*) * N);
@@ -24,6 +27,7 @@ void func1(){
         }
     }
 
+    auto start_sort = std::chrono::high_resolution_clock::now();
     for (i = 1; i<N; i+=2){
         for (j = 1; j<N; j++){
             for (k =0; k<N-1; k++){
@@ -35,12 +39,9 @@ void func1(){
             }
         }
     }
-//    for (i = 0; i<N; i++){
-//        for (j = 0; j<N; j++){
-//            printf("%f    ", a[i][j]);
-//        }
-//        printf("\n");
-//    }
+    auto end_sort = std::chrono::high_resolution_clock::now();
+
+
     // Освобождение памяти
     for (int i = 0; i < N; i++) {
         free(a[i]); // Освободить память для каждой строки массива
@@ -51,7 +52,11 @@ void func1(){
 
 // Установить указатель на NULL
     a = NULL;
-    std::cout << "runtime func 1 = " << clock()/1000.0 << std::endl; // время работы программы
+    auto end = std::chrono::high_resolution_clock::now();
+    double total_time = static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count()) ;
+    double sort_time = static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(end_sort - start_sort).count());
+    std::cout << "runtime func 1 = " << std::endl; // время работы программы
+    std::cout << (total_time / std::pow(10, 6)) << ' ' << (sort_time / std::pow(10, 6)) << std::endl;
 }
 
 // ошибка 1 - нужно объявлять переменные максимально близко к их использованию (i j k)
@@ -65,32 +70,35 @@ void func1(){
 // улучшение -- изменен алгоритм с bubble sort на quick sort
 void func2(){
     int size;
-    srand(time(nullptr));
     std::cout << "Введите количество элементов: ";
     std::cin >> size;
     if (size <= 0){
         std::cout << "ERROR!!! size>0!!!" << std::endl;
         return;
     }
+    auto start = std::chrono::high_resolution_clock::now();
     auto m = new_memory(size);
 
     random_data(m, size);
-
+    auto start_sort = std::chrono::high_resolution_clock::now();
     for (int i = 1; i < size; i+=2) {
         qsortRecursive(m[i], size);
     }
+    auto end_sort = std::chrono::high_resolution_clock::now();
 
-//    out(m, size);
     free_mem(m);
+    auto end = std::chrono::high_resolution_clock::now();
+    double total_time = static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count()) ;
+    double sort_time = static_cast<double>(std::chrono::duration_cast<std::chrono::nanoseconds>(end_sort - start_sort).count());
 
-    std::cout << "runtime func 2 = " << clock()/1000.0 << std::endl; // время работы программы
+    std::cout << "runtime func 2 = " << std::endl; // время работы программы
+    std::cout << (total_time / std::pow(10, 6)) << ' ' << (sort_time / std::pow(10, 6)) << std::endl;
 }
 
 
 int main(){
-//    func1();
+    func1();
 //    func2();
-    std::cout << sizeof(int );
     return 0;
 }
 void out(double** mas, int size){
@@ -106,9 +114,10 @@ void free_mem(double** mas){
     delete[] mas[0];
     delete[] mas;
 }
+
+
 // new_memory эффективное выделение памяти в стиле С++
 double** new_memory(int size){
-
     auto ** m = new double*[size];
     m[0] = new double[size*size];
     for (auto i = 1; i < size; ++i){
