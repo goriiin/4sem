@@ -1,11 +1,11 @@
-         section .text     ; сегмент кода
+         section .text     ; ������� ����
 IntToStr64: 
          push   rdi
          push   rbx
          push   rdx
          push   rcx
 		 push   rsi
-		 mov    byte[rsi],0 ; на место знака
+		 mov    byte[rsi],0 ; �� ����� �����
          cmp    eax,0
          jge    .l1
          neg    eax
@@ -13,21 +13,21 @@ IntToStr64:
 .l1      mov    byte[rsi+6],10
          mov    rdi,5
          mov    bx,10
-.again:  cwd           ; расширили слово до двойного
-         div    bx     ; делим результат на 10
-         add    dl,30h ; получаем из остатка код цифры
-         mov    [rsi+rdi],dl ; пишем символ в строку
-         dec    rdi    ; переводим указатель на  
-                       ; предыдущую позицию
-         cmp    ax, 0  ; преобразовали все число?
+.again:  cwd           ; ��������� ����� �� ��������
+         div    bx     ; ����� ��������� �� 10
+         add    dl,30h ; �������� �� ������� ��� �����
+         mov    [rsi+rdi],dl ; ����� ������ � ������
+         dec    rdi    ; ��������� ��������� ��  
+                       ; ���������� �������
+         cmp    ax, 0  ; ������������� ��� �����?
          jne    .again
          mov    rcx, 6
-         sub    rcx, rdi ; длина результата+знак
+         sub    rcx, rdi ; ����� ����������+����
 		 mov    rax,rcx
-		 inc    rax    ; длина результата+OA
-         inc    rsi    ; пропускаем знак
+		 inc    rax    ; ����� ����������+OA
+         inc    rsi    ; ���������� ����
 		 push   rsi
-         lea    rsi,[rsi+rdi] ; начало результата
+         lea    rsi,[rsi+rdi] ; ������ ����������
 		 pop    rdi
          rep movsb
          pop    rsi  
@@ -40,27 +40,27 @@ StrToInt64:
          push   rdi
          mov    bh, '9'
          mov    bl, '0'
-         push   rsi     ; сохраняем адрес исходной строки
+         push   rsi     ; ��������� ����� �������� ������
          cmp    byte[rsi], '-'
          jne    .prod
-         inc    rsi     ; пропускаем знак
+         inc    rsi     ; ���������� ����
 .prod    cld
-         xor    di, di  ; обнуляем будущее число
-.cycle:  lodsb          ; загружаем символ (цифру)
-         cmp    al, 10  ; если 10, то на конец
+         xor    di, di  ; �������� ������� �����
+.cycle:  lodsb          ; ��������� ������ (�����)
+         cmp    al, 10  ; ���� 10, �� �� �����
          je     .Return
-         cmp    al, bl  ; сравниваем с кодом нуля
-         jb     .Error  ; "ниже" – Ошибка
-         cmp    al, bh  ; сравниваем с кодом девяти
-         ja     .Error  ; "выше" – Ошибка
-         sub    al, 30h ; получаем цифру из символа
-         cbw            ; расширяем до слова
-         push   ax      ; сохраняем в стеке
-         mov    ax, 10  ; заносим 10 в AX
-         mul    di      ; умножаем, результат в DX:AX
-         pop    di      ; в DI – очередная цифра
+         cmp    al, bl  ; ���������� � ����� ����
+         jb     .Error  ; "����" � ������
+         cmp    al, bh  ; ���������� � ����� ������ 
+         ja     .Error  ; "����" � ������
+         sub    al, 30h ; �������� ����� �� �������
+         cbw            ; ��������� �� �����
+         push   ax      ; ��������� � �����
+         mov    ax, 10  ; ������� 10 � AX
+         mul    di      ; ��������, ��������� � DX:AX
+         pop    di      ; � DI � ��������� �����
          add    ax, di
-         mov    di, ax  ; в DI – накопленное число
+         mov    di, ax  ; � DI � ����������� �����        
          jmp    .cycle
 .Return: pop    rsi
          mov    rbx, 0
