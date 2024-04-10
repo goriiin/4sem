@@ -73,6 +73,8 @@ section .text
 
       ret
 
+
+
 section .text ; сегмент кода
    global _start
         
@@ -88,13 +90,26 @@ _start:
    call input_func
    mov  [D], rax
 
+    mov ebx, 80000000h
+    and ebx, eax
+    cmp ebx, 0
+jl minus
+    mov [D], rax
+    jmp exitMin
+minus:
+    mov rbx, 4294967296
+    sub rax, rbx
+    mov [D], rax
+
+exitMin:
+
    mov rbx, [D]
    dec rbx
    cmp rbx, 0
    je  zero_err
   
    mov  rax, [C]
-   cqo
+   
    idiv rbx
 
    mov [A], rax
@@ -132,5 +147,5 @@ overflow_err:
     syscall                   ; вызов системной функции
     jmp     exit
 
-%include "../lib.asm"
+%include "../../lib.asm"
 

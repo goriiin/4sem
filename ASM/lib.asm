@@ -8,7 +8,7 @@ IntToStr64:
 		 mov    byte[rsi],0 ; �� ����� �����
          cmp    eax,0
          jge    .l1
-         neg    eax
+         neg    rax
          mov    byte[rsi],'-'
 .l1      mov    byte[rsi+6],10
          mov    rdi,5

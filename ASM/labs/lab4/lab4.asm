@@ -198,5 +198,4 @@ error_num:
     jmp exit
 
 
-
-%include "../lib.asm"
+%include "../../lib.asm"
