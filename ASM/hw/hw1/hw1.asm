@@ -65,7 +65,7 @@ _start:
     mov [inputStrLen], rcx
     add rcx, InBuf
     dec rcx
-    mov byte[rcx], ' '
+    mov byte[rcx], space_ch
     ; mov byte[cl+InBuf-1], ' '
 
     lea r8, [InBuf]
