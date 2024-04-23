@@ -4,6 +4,7 @@
 %define LEN         40
 
 section .data ; сегмент инициализированных переменных
+    newline db 30
    ind dw 0
    matrix times MATRIX_SIZE dq 0 ; матрица 25 символов 
    InBuf  times 32  db 0         ; буфер для вводимой строки
@@ -16,6 +17,7 @@ section .data ; сегмент инициализированных переме
    err_line_len equ $-err_line
 
    line_sum times 5 dq 0
+   sorok db 40
 
 section .bss ; сегмент неинициализированных переменных
    OutBuf resq 10 ; буфер вывода
@@ -37,6 +39,15 @@ section .text
       cmp  rbx, 0     ; проверка кода ошибки
       jne  input_func ; при преобразовании обнаружена ошибка
 
+      mov ebx, 80000000h
+      and ebx, eax
+      cmp ebx, 0
+      jl minus
+      jmp __exit
+   minus:
+      mov rbx, 4294967296
+      sub rax, rbx
+   __exit:   
       ret
 
 section .text
@@ -54,7 +65,12 @@ section .text
 section .text
    global output_func
    output_func:
-      mov  rsi,      OutBuf ; загрузка адреса буфера вывода
+      push rdi
+      push rax
+      push rsi
+      push rdx
+      push rcx
+      mov  rsi, OutBuf ; загрузка адреса буфера вывода
       call IntToStr64
       mov  [OutLen], rax
 
@@ -63,7 +79,11 @@ section .text
       mov rsi, OutBuf   ; 
       mov rdx, [OutLen] ; 
       syscall; 
-
+      pop rcx
+      pop rdx
+      pop rsi
+      pop rax
+      pop rdi
       ret
 
 ; ввод матрицы    
@@ -136,34 +156,69 @@ section .text
 section .text
    global matrix_out
    matrix_out:
-      mov rdi, matrix
-      mov rcx, MATRIX_SIZE
+      mov rcx, ROW_COUNT
+      xor rsi, rsi
+      lea rdi, [matrix]
 
    .print_loop:
-      mov rax, qword [rdi]
-      call output_func ; вызываем функцию вывода числа
-      inc r9
+      push rcx
+      mov rcx, STR_COUNT
+      .print_row:
+         mov rax, qword[rdi]
+         call output_func ; вызываем функцию вывода числа
+         add rdi, 8
+         loop .print_row
+
+      ; print a newline at the end of the row
+      push rdi
+      push rax
+      push rsi
+      push rdx
+      mov rax, 1
+      mov rdi, 1
+      mov rsi, newline
+      mov rdx, 1
+      syscall
+      pop rdx
+      pop rsi
+      pop rax
+      pop rdi
+      pop rcx
       loop .print_loop
 
       ret
 
-
-
 section .text
    global proc_row
-   proc_row:
+    proc_row:
+      ; в r9 - нужный индекс
+      ; в r10 - матрица
+      ; в r11 - сумм
       push rcx
+      push rax
       xor r11, r11
-      mov rcx, ROW_COUNT
+      mov rcx, STR_COUNT
+             
       _sum_str:
+         cmp byte[r10], 0
+         jle .skip
          add r11, qword[r10]
-         
-         inc r10
+         .skip:
+         add r10, 8
          loop _sum_str
 
-      mov qword[matrix +r9 * 8], r11
-      pop rcx
-      ret
+         .done:
+         xor rax, rax
+         mov rax, r9
+         imul byte[sorok]
+
+
+
+         mov qword[matrix + rax+r9*8], r11
+
+         pop rax
+         pop rcx
+         ret
 
 section .text ; сегмент кода
    global _start
@@ -177,17 +232,16 @@ _start:
    xor rax, rax
 
    mov rcx, STR_COUNT
-   lea r10, matrix
+   lea r10, [matrix]
    xor r9,  r9
 
 .loop_rows:
    call proc_row ; вызов функции для подсчета суммы элементов строки
     inc r9       ; номер строки/элемента в строке
-    add r10, LEN ;перескок на след строку
 
-    jl .loop_rows
+    loop .loop_rows
 
-   lea r10, matrix
+   lea r10, [matrix]
    call matrix_out
 exit:
    ; exit
