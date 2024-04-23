@@ -1,6 +1,7 @@
 %define MATRIX_SIZE 25
-%define ROW_LEN     5
-%define COUNT       5
+%define ROW_COUNT   5
+%define STR_COUNT   5
+%define LEN         40
 
 section .data ; сегмент инициализированных переменных
    ind dw 0
@@ -64,7 +65,8 @@ section .text
       syscall; 
 
       ret
-      
+
+; ввод матрицы    
 section .text
    global matrix_input
    matrix_input:
@@ -115,11 +117,11 @@ section .text
 
          pop rcx
 
-         mov  rax, ROW_LEN
+         mov  rax, ROW_COUNT
          sub  rax, rcx
          inc  rax
          push rdx
-         mov  rdx, ROW_LEN
+         mov  rdx, ROW_COUNT
          mul  rdx
          pop  rdx
 
@@ -129,52 +131,64 @@ section .text
          dec rcx
          cmp rcx, 0
          jne read_line
-      
       ret
 
 section .text
-   global sum_row
-   sum_row:
-   mov rax, 0                  ; сумма элементов в строке
-   mov rcx, 5                  ; количество элементов в строке
-  mov rbx, rdi
-    imul rbx, rbx, 8  ; умножаем номер строки на размер строки
-    add rbx, matrix   ; добавляем смещение на адрес матрицы
-   .loop:
-      add  rax, [rbx] ; добавляем значение элемента к сумме
-      add  rbx, 8     ; переходим к следующему элементу
-      loop .loop
-   ret
+   global matrix_out
+   matrix_out:
+      mov rdi, matrix
+      mov rcx, MATRIX_SIZE
+
+   .print_loop:
+      mov rax, qword [rdi]
+      call output_func ; вызываем функцию вывода числа
+      inc r9
+      loop .print_loop
+
+      ret
+
+
+
+section .text
+   global proc_row
+   proc_row:
+      push rcx
+      xor r11, r11
+      mov rcx, ROW_COUNT
+      _sum_str:
+         add r11, qword[r10]
+         
+         inc r10
+         loop _sum_str
+
+      mov qword[matrix +r9 * 8], r11
+      pop rcx
+      ret
 
 section .text ; сегмент кода
    global _start
 
 _start:
-   mov rcx, ROW_LEN
+   mov rcx, ROW_COUNT
    xor rdi, rdi
 
    call matrix_input
 
    xor rax, rax
-   mov rcx, COUNT
-   mov edi, 0
-   
-   mov rdi, 0 ; номер строки (начиная с 0)
+
+   mov rcx, STR_COUNT
+   lea r10, matrix
+   xor r9,  r9
 
 .loop_rows:
-   call sum_row               ; вызов функции для подсчета суммы элементов строки
-   mov  [matrix + rdi*8], rax ; помещаем сумму на главную диагональ матрицы
+   call proc_row ; вызов функции для подсчета суммы элементов строки
+    inc r9       ; номер строки/элемента в строке
+    add r10, LEN ;перескок на след строку
 
-    ; сохраняем значение в регистре rax
-   mov rax, qword[matrix + rdi*8]
+    jl .loop_rows
 
-    ; вызов функции output_func
-   ;  call output_func
-
-    inc rdi        ; переходим к следующей строке
-    cmp rdi, 5
-    jl  .loop_rows
-
+   lea r10, matrix
+   call matrix_out
 exit:
    ; exit
    mov     rax, 60  ; системная функция 60 (exit)
