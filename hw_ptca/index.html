@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <title>ДЗ ПТЦА</title>
+</head>
+<meta lang="utf-8">
+<head>
+  <title>Камень-Ножницы-Бумага</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+    }
+    .game-mode {
+      margin-bottom: 20px;
+    }
+    .game-mode button {
+      margin: 10px;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      background-color: #4CAF50;
+      color: #fff;
+      cursor: pointer;
+    }
+    .game-mode button:hover {
+      background-color: #3e8e41;
+    }
+    .game-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 20px;
+    }
+    .game-container .choice {
+      margin: 20px;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .game-container .choice:hover {
+      background-color: #f0f0f0;
+    }
+    .result {
+      margin-top: 20px;
+      font-size: 24px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <h1>Камень-Ножницы-Бумага</h1>
+  <div class="game-mode">
+    <button id="play-with-pc">Играть с ПК</button>
+    <button id="play-with-friend">Играть с другом</button>
+  </div>
+  <div class="game-container" id="game-container">
+    <div class="choice" id="rock">Камень</div>
+    <div class="choice" id="scissors">Ножницы</div>
+    <div class="choice" id="paper">Бумага</div>
+  </div>
+  <div class="result" id="result"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
