@@ -19,15 +19,15 @@ void run(std::istream& in, std::ostream& out){
     std::string run_opt;
     size_t n;
 
-    std::cout << "enter run to run the program or something else to stop: ";
+    std::cout << "enter `1` to run the program or something else to stop: ";
     std::cin >> run_opt;
-    while (run_opt == "run"){
+    while (run_opt == "1"){
         std::cout << "enter num: ";
         std::cin >> n;
 
         change_order(input.c_str(), input.size(), n);
 
-        std::cout << "enter run to run the program or something else to stop: ";
+        std::cout << "enter run to `1` the program or something else to stop: ";
         std::cin >> run_opt;
     }
 }
