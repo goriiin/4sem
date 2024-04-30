@@ -5,13 +5,6 @@ import (
 	"time"
 )
 
-type Data struct {
-	ID   int64  `db:"id"`
-	Num  string `db:"num"`
-	Date string `db:"date"`
-	CVC  int    `db:"cvc"`
-}
-
 type Cheque struct {
 	ID            int64      `db:"id"`
 	RentID        int64      `db:"rent_id"`

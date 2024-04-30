@@ -1,10 +1,16 @@
 package user
 
 import (
-	"github.com/goriiin/cw/structures/bank"
 	"github.com/goriiin/cw/structures/transport"
 	"time"
 )
+
+type BankData struct {
+	ID   int64  `db:"id"`
+	Num  string `db:"num"`
+	Date string `db:"date"`
+	CVC  int    `db:"cvc"`
+}
 
 type RegistrationAddress struct {
 	ID       int64  `db:"id"`
@@ -27,14 +33,14 @@ type Human struct {
 }
 
 type User struct {
-	ID          int64      `db:"id"`
-	Nick        string     `db:"nick"`
-	BankData    *bank.Data `db:"bank_data"`
-	Email       string     `db:"email"`
-	PhoneNumber string     `db:"phone_number"`
-	RegDate     time.Time  `db:"reg_date"`
-	HumanID     int64      `db:"human_id"`
-	Human       *Human     `db:"human"`
+	ID          int64     `db:"id"`
+	Nick        string    `db:"nick"`
+	BankData    *BankData `db:"bank_data"`
+	Email       string    `db:"email"`
+	PhoneNumber string    `db:"phone_number"`
+	RegDate     time.Time `db:"reg_date"`
+	HumanID     int64     `db:"human_id"`
+	Human       *Human    `db:"human"`
 }
 
 type DriverLicense struct {
