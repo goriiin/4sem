@@ -1,0 +1,6 @@
+host: localhost
+port: "54320"
+username: "dmitry"
+password: "123"
+db_name: "database_cw"
+timeout: 5s
