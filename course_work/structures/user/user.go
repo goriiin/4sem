@@ -1,16 +1,8 @@
 package user
 
 import (
-	"github.com/goriiin/cw/structures/transport"
 	"time"
 )
-
-type BankData struct {
-	ID   int64  `db:"id"`
-	Num  string `db:"num"`
-	Date string `db:"date"`
-	CVC  int    `db:"cvc"`
-}
 
 type RegistrationAddress struct {
 	ID       int64  `db:"id"`
@@ -22,25 +14,24 @@ type RegistrationAddress struct {
 }
 
 type Human struct {
-	ID             int64                `db:"id"`
-	Surname        string               `db:"surname"`
-	Name           string               `db:"name"`
-	MidName        string               `db:"mid_name"`
-	PassportSeries int                  `db:"passport_series"`
-	PassportNum    int                  `db:"passport_num"`
-	Birthday       time.Time            `db:"birthday"`
-	RegAddress     *RegistrationAddress `db:"reg_address"`
+	ID             int64     `db:"id"`
+	Surname        string    `db:"surname"`
+	Name           string    `db:"name"`
+	MidName        string    `db:"mid_name"`
+	PassportSeries int       `db:"passport_series"`
+	PassportNum    int       `db:"passport_num"`
+	Birthday       time.Time `db:"birthday"`
+	RegAddress     int64     `db:"reg_address"`
 }
 
 type User struct {
 	ID          int64     `db:"id"`
 	Nick        string    `db:"nick"`
-	BankData    *BankData `db:"bank_data"`
 	Email       string    `db:"email"`
+	BankData    int64     `db:"bank_data"`
 	PhoneNumber string    `db:"phone_number"`
 	RegDate     time.Time `db:"reg_date"`
 	HumanID     int64     `db:"human_id"`
-	Human       *Human    `db:"human"`
 }
 
 type DriverLicense struct {
@@ -52,21 +43,17 @@ type DriverLicense struct {
 }
 
 type License struct {
-	ID        int64          `db:"id"`
-	UserID    int64          `db:"user_id"`
-	LicenseID int64          `db:"licence_id"`
-	User      *User          `db:"user"`
-	License   *DriverLicense `db:"licence"`
+	ID        int64 `db:"id"`
+	UserID    int64 `db:"user_id"`
+	LicenseID int64 `db:"licence_id"`
 }
 
 type Rent struct {
-	ID          int64                `db:"id"`
-	TransportID int64                `db:"transport_id"`
-	UserID      int64                `db:"user_id"`
-	CostPerHour float64              `db:"cost_per_hour"`
-	BeginDate   time.Time            `db:"begin_date"`
-	EndDate     time.Time            `db:"end_date"`
-	City        string               `db:"city"`
-	Transport   *transport.Transport `db:"transport"`
-	User        *User                `db:"user"`
+	ID          int64     `db:"id"`
+	TransportID int64     `db:"transport_id"`
+	UserID      int64     `db:"user_id"`
+	CostPerHour float64   `db:"cost_per_hour"`
+	BeginDate   time.Time `db:"begin_date"`
+	EndDate     time.Time `db:"end_date"`
+	City        string    `db:"city"`
 }
