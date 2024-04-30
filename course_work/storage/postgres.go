@@ -102,7 +102,7 @@ func (s *Storage) ChequeSelect() ([]bank.Cheque, error) {
 	return nil, nil
 }
 
-func (s *Storage) BankDataSelect() ([]user.BankData, error) {
+func (s *Storage) BankDataSelect() ([]bank.Data, error) {
 	const op = "storage-bankDataSelect"
 
 	return nil, nil
