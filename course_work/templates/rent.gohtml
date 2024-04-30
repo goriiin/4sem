@@ -1,0 +1,22 @@
+<table class="table">
+    <tr>
+        <th>id</th>
+        <th>transport_id</th>
+        <th>user_id</th>
+        <th>cost_per_hour</th>
+        <th>begin_date</th>
+        <th>end_date</th>
+        <th>city</th>
+    </tr>
+    {{range .Rents}}
+        <tr>
+            <td>{{.Id}}</td>
+            <td>{{.TransportId}}</td>
+            <td>{{.UserId}}</td>
+            <td>{{.CostPerHour}}</td>
+            <td>{{.BeginDate}}</td>
+            <td>{{.EndDate}}</td>
+            <td>{{.City}}</td>
+        </tr>
+    {{end}}
+</table>

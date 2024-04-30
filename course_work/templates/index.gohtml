@@ -1,10 +1,16 @@
+<!DOCTYPE html>
+<html lang="ru" data-bs-theme="dark">
 <head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../static/bootstrap-5.3.3-dist/css/bootstrap.min.css">
     <title>{{.Title}}</title>
 </head>
 <body>
-{{template "header"}}
-<div id="content">
-    {{template "user" .}} <!-- include user.gohtml template here -->
-</div>
+
+{{template "nav.gohtml"}}
+
+{{block "content" .}}
+{{end}} <!-- include user.gohtml template here -->
+
 </body>
 </html>

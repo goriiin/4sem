@@ -1,0 +1,14 @@
+<table class="table">
+    <tr>
+        <th>id</th>
+        <th>transport_id</th>
+        <th>damage_id</th>
+    </tr>
+    {{range .TransportDamages}}
+        <tr>
+            <td>{{.Id}}</td>
+            <td>{{.TransportId}}</td>
+            <td>{{.DamageId}}</td>
+        </tr>
+    {{end}}
+</table>

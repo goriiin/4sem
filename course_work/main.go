@@ -11,13 +11,13 @@ import (
 
 func main() {
 	cfg := config.MustLoad()
-	storage, err := storage.New(cfg.DbConfigPath)
+	s, err := storage.New(cfg.DbConfigPath)
 
 	if err != nil {
 		log.Fatalf("db error : %s", err)
 		os.Exit(1)
 	}
-	err = storage.TestSelect()
+	err = s.TestSelect()
 	if err != nil {
 		log.Fatalf("db error : %s", err)
 		os.Exit(1)
@@ -45,6 +45,8 @@ func main() {
 		}
 		_ = t.Execute(w, data)
 	})
+
+	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 
 	_ = http.ListenAndServe(":8080", nil)
 }

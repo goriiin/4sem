@@ -1,0 +1,20 @@
+<table class="table">
+    <tr>
+        <th>id</th>
+        <th>city</th>
+        <th>street</th>
+        <th>house_num</th>
+        <th>flat</th>
+        <th>country</th>
+    </tr>
+    {{range .RegistrationAddresses}}
+        <tr>
+            <td>{{.Id}}</td>
+            <td>{{.City}}</td>
+            <td>{{.Street}}</td>
+            <td>{{.HouseNum}}</td>
+            <td>{{.Flat}}</td>
+            <td>{{.Country}}</td>
+        </tr>
+    {{end}}
+</table>

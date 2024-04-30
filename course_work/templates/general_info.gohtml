@@ -1,0 +1,18 @@
+<table class="table">
+    <tr>
+        <th>id</th>
+        <th>checkup_date</th>
+        <th>engine_type</th>
+        <th>color</th>
+        <th>description</th>
+    </tr>
+    {{range .GeneralInfos}}
+        <tr>
+            <td>{{.Id}}</td>
+            <td>{{.CheckupDate}}</td>
+            <td>{{.EngineType}}</td>
+            <td>{{.Color}}</td>
+            <td>{{.Description}}</td>
+        </tr>
+    {{end}}
+</table>
