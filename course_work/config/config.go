@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/url"
 	"os"
+	"time"
 )
 
 type DbConfig struct {
@@ -22,18 +23,18 @@ type DbConfig struct {
 
 type LocalConfig struct {
 	Env          string `yaml:"env"`
-	DbConfigPath string `yaml:"db_config_path"`
-	HTTPServer   string `yaml:"http_server"`
+	DbConfigPath string `yaml:"db_conf_path"`
+	HTTPServer   `yaml:"http_server"`
 }
 
 type HTTPServer struct {
-	Address     string `yaml:"address"`
-	Timeout     int    `yaml:"timeout"`
-	IdleTimeout int    `yaml:"idle_timeout"`
+	Address     string        `yaml:"address"`
+	Timeout     time.Duration `yaml:"timeout"`
+	IdleTimeout time.Duration `yaml:"idle_timeout"`
 }
 
-func MustLoad() {
-	configPath := "./configs/config.yaml"
+func MustLoad() *LocalConfig {
+	configPath := "./config/server_config.yaml"
 
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
 		log.Fatal("config file not found")
@@ -43,7 +44,7 @@ func MustLoad() {
 	if err := cleanenv.ReadConfig(configPath, &cfg); err != nil {
 		log.Fatalf("cannot read config: %s", err)
 	}
-
+	return &cfg
 }
 
 func ReadConfig(pathToDB string) (*DbConfig, error) {

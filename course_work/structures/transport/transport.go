@@ -1,8 +1,8 @@
-package structures
+package transport
 
 import "time"
 
-type TransportInfo struct {
+type Info struct {
 	ID          int64  `db:"id"`
 	Brand       string `db:"brand"`
 	ReleaseYear int    `db:"release_year"`
@@ -25,17 +25,17 @@ type GeneralInfo struct {
 }
 
 type Transport struct {
-	ID              int64          `db:"id"`
-	GeneralInfoID   int64          `db:"general_info_id"`
-	TransportInfoID int64          `db:"transport_info_id"`
-	Free            bool           `db:"free"`
-	StateNumber     string         `db:"state_number"`
-	DateAdd         time.Time      `db:"date_add"`
-	GeneralInfo     *GeneralInfo   `db:"general_info"`
-	TransportInfo   *TransportInfo `db:"transport_info"`
+	ID              int64        `db:"id"`
+	GeneralInfoID   int64        `db:"general_info_id"`
+	TransportInfoID int64        `db:"transport_info_id"`
+	Free            bool         `db:"free"`
+	StateNumber     string       `db:"state_number"`
+	DateAdd         time.Time    `db:"date_add"`
+	GeneralInfo     *GeneralInfo `db:"general_info"`
+	TransportInfo   *Info        `db:"transport_info"`
 }
 
-type TransportDamages struct {
+type Damages struct {
 	ID          int64      `db:"id"`
 	TransportID int64      `db:"transport_id"`
 	DamageID    int64      `db:"damage_id"`
