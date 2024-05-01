@@ -4,9 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/goriiin/cw/config"
-	"github.com/goriiin/cw/structures/bank"
-	"github.com/goriiin/cw/structures/transport"
-	"github.com/goriiin/cw/structures/user"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"os"
 )
@@ -70,81 +67,4 @@ func (s *Storage) TestSelect() error {
 		return fmt.Errorf("%s: %w", op, err)
 	}
 	return nil
-}
-
-func (s *Storage) HumanSelect() ([]user.Human, error) {
-	const op = "storage-humanSelect"
-	return nil, nil
-}
-func (s *Storage) GeneralInfoSelect() ([]transport.GeneralInfo, error) {
-	const op = "storage-generalInfoSelect"
-	return nil, nil
-}
-
-func (s *Storage) FineSelect() ([]bank.Fine, error) {
-	const op = "storage-fineSelect"
-	return nil, nil
-}
-
-func (s *Storage) DriverLicenceSelect() ([]user.DriverLicense, error) {
-	const op = "storage-driverLicenceSelect"
-	return nil, nil
-}
-
-func (s *Storage) DamageSelect() ([]transport.Damage, error) {
-	const op = "storage-damageSelect"
-	return nil, nil
-}
-
-func (s *Storage) ChequeSelect() ([]bank.Cheque, error) {
-	const op = "storage-chequeSelect"
-
-	return nil, nil
-}
-
-func (s *Storage) BankDataSelect() ([]bank.Data, error) {
-	const op = "storage-bankDataSelect"
-
-	return nil, nil
-}
-
-func (s *Storage) RegistrationAddressSelect() ([]user.RegistrationAddress, error) {
-	const op = "storage-registrationAddressSelect"
-	return nil, nil
-
-}
-
-func (s *Storage) RentSelect() ([]user.Rent, error) {
-	const op = "storage-rentSelect"
-	return nil, nil
-}
-
-func (s *Storage) TransportSelect() ([]transport.Transport, error) {
-	const op = "storage-transportSelect"
-	return nil, nil
-}
-
-func (s *Storage) TransportDamagesSelect() ([]transport.Damages, error) {
-	const op = "storage-transportDamagesSelect"
-	return nil, nil
-}
-
-func (s *Storage) TransportInfoSelect() ([]transport.Info, error) {
-	const op = "storage-transportInfoSelect"
-	return nil, nil
-}
-
-func (s *Storage) UserSelect() ([]user.User, error) {
-	const op = "storage-userSelect"
-	return nil, nil
-}
-
-func (s *Storage) UserLicenceSelect() ([]user.License, error) {
-	const op = "storage-userLicSelect"
-	return nil, nil
-}
-
-func (s *Storage) UserFinesSelect() ([]bank.UserFines, error) {
-	const op = "storage-userFinesSelect"
-	return nil, nil
 }
