@@ -21,7 +21,7 @@ type Human struct {
 	PassportSeries int       `db:"passport_series"`
 	PassportNum    int       `db:"passport_num"`
 	Birthday       time.Time `db:"birthday"`
-	RegAddress     int64     `db:"reg_address"`
+	RegAddress     int       `db:"reg_address"`
 }
 
 type User struct {
