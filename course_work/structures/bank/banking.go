@@ -13,9 +13,9 @@ type Cheque struct {
 }
 
 type Fine struct {
-	ID          int64  `db:"id"`
-	Sum         string `db:"sum"`
-	Description string `db:"description"`
+	ID          int64  `db:"id" json:"id"`
+	Sum         string `db:"sum" json:"sum"`
+	Description string `db:"description" json:"description"`
 }
 
 type UserFines struct {

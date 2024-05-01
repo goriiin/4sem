@@ -10,9 +10,9 @@
     </table>
     <table class="table table-striped table-bordered">
         <tbody>
-        {{range $index := .Data}}
+        {{range $index, $i := .Data}}
             <tr>
-                <td>{{$index}}</td>
+                <td>{{$index}} -- {{$i}}</td>
             </tr>
         {{end}}
         </tbody>
