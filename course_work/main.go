@@ -24,27 +24,27 @@ func main() {
 		os.Exit(1)
 	}
 
-	t, err := template.New("base").ParseFiles("./templates/index.gohtml", "./templates/my_Content.gohtml")
+	t, err := template.New("base").ParseFiles("./templates/index.gohtml", "./templates/table.gohtml")
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		page := pages.InitBasePage()
 		err := t.ExecuteTemplate(w, "index.gohtml", page)
 		if err != nil {
-			log.Fatalf("template error : %s", err)
+			log.Printf("template error : %s", err)
 		}
 	})
 
 	http.HandleFunc("/human", func(w http.ResponseWriter, r *http.Request) {
 		page, err := pages.InitHuman(s)
 		if err != nil {
-			log.Fatalf("db error : %s", err)
+			log.Printf("db error : %s", err)
 		}
 		err = t.ExecuteTemplate(w, "index.gohtml", page)
 		if err != nil {
-			log.Fatalf("template error : %s", err)
+			log.Printf("template error : %s", err)
 		}
 	})
 
@@ -62,22 +62,22 @@ func main() {
 	http.HandleFunc("/cheque", func(w http.ResponseWriter, r *http.Request) {
 		page, err := pages.InitCheque(s)
 		if err != nil {
-			log.Fatalf("db error : %s", err)
+			log.Printf("db error : %s", err)
 		}
 		err = t.ExecuteTemplate(w, "index.gohtml", page)
 		if err != nil {
-			log.Fatalf("template error : %s", err)
+			log.Printf("template error : %s", err)
 		}
 	})
 
 	http.HandleFunc("/damage", func(w http.ResponseWriter, r *http.Request) {
 		page, err := pages.InitDamage(s)
 		if err != nil {
-			log.Fatalf("db error : %s", err)
+			log.Printf("db error : %s", err)
 		}
 		err = t.ExecuteTemplate(w, "index.gohtml", page)
 		if err != nil {
-			log.Fatalf("template error : %s", err)
+			log.Printf("template error : %s", err)
 		}
 	})
 
