@@ -5,17 +5,17 @@ import (
 )
 
 type Cheque struct {
-	ID            int64   `db:"id"`
-	RentID        int64   `db:"rent_id"`
-	UserID        int64   `db:"user_id"`
-	TotalCost     float64 `db:"total_cost"`
-	PaymentStatus bool    `db:"payment_status"`
+	ID            int64  `db:"id"`
+	RentID        int64  `db:"rent_id"`
+	UserID        int64  `db:"user_id"`
+	TotalCost     string `db:"total_cost"`
+	PaymentStatus bool   `db:"payment_status"`
 }
 
 type Fine struct {
-	ID          int64   `db:"id"`
-	Sum         float64 `db:"sum"`
-	Description string  `db:"description"`
+	ID          int64  `db:"id"`
+	Sum         string `db:"sum"`
+	Description string `db:"description"`
 }
 
 type UserFines struct {
