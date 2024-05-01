@@ -50,7 +50,7 @@ func (s *Storage) UserSelect() ([]user.User, error) {
 }
 
 func (s *Storage) UserLicenceSelect() ([]user.License, error) {
-	const op = "db.postgres.UserLicenceSelect"
+	const op = "storage.user.UserLicenceSelect"
 	rows, err := s.db.Query(context.Background(),
 		"select id, user_id, licence_id from user_license")
 	if err != nil {
@@ -70,7 +70,7 @@ func (s *Storage) UserLicenceSelect() ([]user.License, error) {
 }
 
 func (s *Storage) RegistrationAddressSelect() ([]user.RegistrationAddress, error) {
-	const op = "db.postgres.RegistrationAddressSelect"
+	const op = "storage.user.RegistrationAddressSelect"
 	rows, err := s.db.Query(context.Background(),
 		"select id, city, street, house_num, flat, country from registration_address")
 	if err != nil {

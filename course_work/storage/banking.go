@@ -8,7 +8,7 @@ import (
 )
 
 func (s *Storage) FineSelect() ([]bank.Fine, error) {
-	const op = "db.postgres.FineSelect"
+	const op = "storage.banking.FineSelect"
 	rows, err := s.db.Query(context.Background(),
 		"select id, sum , description from fine")
 	if err != nil {
@@ -28,7 +28,7 @@ func (s *Storage) FineSelect() ([]bank.Fine, error) {
 }
 
 func (s *Storage) ChequeSelect() ([]bank.Cheque, error) {
-	const op = "db.postgres.ChequeSelect"
+	const op = "storage.banking.ChequeSelect"
 	rows, err := s.db.Query(context.Background(),
 		"select id,rent_id, user_id,total_cost,payment_status  from cheque")
 	if err != nil {
@@ -38,7 +38,7 @@ func (s *Storage) ChequeSelect() ([]bank.Cheque, error) {
 	chequeSlice := make([]bank.Cheque, 0)
 	for rows.Next() {
 		var cheque bank.Cheque
-		err = rows.Scan(&cheque.ID, &cheque.UserID, &cheque.TotalCost, &cheque.PaymentStatus)
+		err = rows.Scan(&cheque.ID, &cheque.RentID, &cheque.UserID, &cheque.TotalCost, &cheque.PaymentStatus)
 		if err != nil {
 			return nil, fmt.Errorf("%s - config err: %w", op, err)
 		}
@@ -48,7 +48,7 @@ func (s *Storage) ChequeSelect() ([]bank.Cheque, error) {
 }
 
 func (s *Storage) BankDataSelect() ([]bank.Data, error) {
-	const op = "db.postgres.BankDataSelect"
+	const op = "storage.banking.BankDataSelect"
 	rows, err := s.db.Query(context.Background(),
 		"select id, num, date, cvc from bank_data")
 	if err != nil {
@@ -68,7 +68,7 @@ func (s *Storage) BankDataSelect() ([]bank.Data, error) {
 }
 
 func (s *Storage) UserFinesSelect() ([]bank.UserFines, error) {
-	const op = "db.postgres.UserFinesSelect"
+	const op = "storage.banking.UserFinesSelect"
 	rows, err := s.db.Query(context.Background(),
 		"select id, user_id, fine_id, date from user_fines")
 	if err != nil {
@@ -88,7 +88,7 @@ func (s *Storage) UserFinesSelect() ([]bank.UserFines, error) {
 }
 
 func (s *Storage) RentSelect() ([]user.Rent, error) {
-	const op = "db.postgres.RentSelect"
+	const op = "storage.banking.RentSelect"
 	rows, err := s.db.Query(context.Background(),
 		"select id, transport_id, user_id, cost_per_hour, begin_date, end_date, city from rent")
 	if err != nil {

@@ -1,6 +1,9 @@
 package transport
 
-import "time"
+import (
+	"database/sql"
+	"time"
+)
 
 type Info struct {
 	ID           int64  `db:"id"`
@@ -18,11 +21,11 @@ type Damage struct {
 }
 
 type GeneralInfo struct {
-	ID          int64  `db:"id"`
-	CheckupDate int    `db:"checkup_date"`
-	EngineType  string `db:"engine_type"`
-	Color       string `db:"color"`
-	Description string `db:"description"`
+	ID          int64          `db:"id"`
+	CheckupDate int            `db:"checkup_date"`
+	EngineType  string         `db:"engine_type"`
+	Color       string         `db:"color"`
+	Description sql.NullString `db:"description"`
 }
 
 type Transport struct {

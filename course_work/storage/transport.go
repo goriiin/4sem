@@ -8,9 +8,9 @@ import (
 )
 
 func (s *Storage) GeneralInfoSelect() ([]transport.GeneralInfo, error) {
-	const op = "db.postgres.GeneralInfoSelect"
+	const op = "storage.transport.GeneralInfoSelect"
 	rows, err := s.db.Query(context.Background(),
-		`select id, checkup_date, engine_type, color, description from general_info`)
+		`select id, checkup_date, engine_type, color,description from general_info`)
 	if err != nil {
 		return nil, fmt.Errorf("%s - config err: %w", op, err)
 	}
@@ -18,7 +18,7 @@ func (s *Storage) GeneralInfoSelect() ([]transport.GeneralInfo, error) {
 	ginfoSlice := make([]transport.GeneralInfo, 0)
 	for rows.Next() {
 		var info transport.GeneralInfo
-		err = rows.Scan(&info.ID, &info.CheckupDate, &info.EngineType, &info.Color, info.Description)
+		err = rows.Scan(&info.ID, &info.CheckupDate, &info.EngineType, &info.Color, &info.Description)
 		if err != nil {
 			return nil, fmt.Errorf("%s - config err: %w", op, err)
 		}
@@ -28,7 +28,7 @@ func (s *Storage) GeneralInfoSelect() ([]transport.GeneralInfo, error) {
 }
 
 func (s *Storage) DriverLicenceSelect() ([]user.DriverLicense, error) {
-	const op = "db.postgres.DriverLicenceSelect"
+	const op = "storage.transport.DriverLicenceSelect"
 	rows, err := s.db.Query(context.Background(),
 		"select id, type,begin_date, end_date, num from driver_license")
 	if err != nil {
@@ -48,7 +48,7 @@ func (s *Storage) DriverLicenceSelect() ([]user.DriverLicense, error) {
 }
 
 func (s *Storage) DamageSelect() ([]transport.Damage, error) {
-	const op = "db.postgres.DamageSelect"
+	const op = "storage.transport.DamageSelect"
 	rows, err := s.db.Query(context.Background(),
 		"select id,machine_part,severity,description from damage")
 	if err != nil {
@@ -68,7 +68,7 @@ func (s *Storage) DamageSelect() ([]transport.Damage, error) {
 }
 
 func (s *Storage) TransportSelect() ([]transport.Transport, error) {
-	const op = "db.postgres.TransportSelect"
+	const op = "storage.transport.TransportSelect"
 	rows, err := s.db.Query(context.Background(),
 		"select id, general_info_id, transport_info_id, free, state_number, date_add from transport")
 	if err != nil {
@@ -88,7 +88,7 @@ func (s *Storage) TransportSelect() ([]transport.Transport, error) {
 }
 
 func (s *Storage) TransportDamagesSelect() ([]transport.Damages, error) {
-	const op = "db.postgres.TransportDamagesSelect"
+	const op = "storage.transport.TransportDamagesSelect"
 	rows, err := s.db.Query(context.Background(),
 		"select id, transport_id, damage_id from transport_damages")
 	if err != nil {
@@ -108,7 +108,7 @@ func (s *Storage) TransportDamagesSelect() ([]transport.Damages, error) {
 }
 
 func (s *Storage) TransportInfoSelect() ([]transport.Info, error) {
-	const op = "db.postgres.TransportInfoSelect"
+	const op = "storage.transport.TransportInfoSelect"
 	rows, err := s.db.Query(context.Background(),
 		"select id, brand, release_year, model, license_level from transport_info")
 	if err != nil {

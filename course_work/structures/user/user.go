@@ -52,7 +52,7 @@ type Rent struct {
 	ID          int64     `db:"id"`
 	TransportID int64     `db:"transport_id"`
 	UserID      int64     `db:"user_id"`
-	CostPerHour float64   `db:"cost_per_hour"`
+	CostPerHour string    `db:"cost_per_hour"`
 	BeginDate   time.Time `db:"begin_date"`
 	EndDate     time.Time `db:"end_date"`
 	City        string    `db:"city"`
