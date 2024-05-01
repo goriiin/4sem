@@ -142,7 +142,7 @@ func InitHuman(s *storage.Storage) (Human, error) {
 	return Human{
 		Content: "Информация о человеке",
 		Data:    data,
-		Fields:  []string{"id", "surname", "name", "middle name", "passport series", "passport num", "birthday", "reg address id"},
+		Fields:  []string{"id", "surname", "name", "mid_name", "passport_series", "passport_num", "birthday", "reg_address"},
 	}, nil
 }
 
