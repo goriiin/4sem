@@ -90,7 +90,7 @@ func (s *Storage) UserFinesSelect() ([]bank.UserFines, error) {
 func (s *Storage) RentSelect() ([]user.Rent, error) {
 	const op = "storage.banking.RentSelect"
 	rows, err := s.db.Query(context.Background(),
-		"select id, transport_id, user_id, cost_per_hour, begin_date, end_date, city from rent")
+		"select id, transport_id, user_id, begin_date, end_date, city from rent")
 	if err != nil {
 		return nil, fmt.Errorf("%s - config err: %w", op, err)
 	}
@@ -98,7 +98,7 @@ func (s *Storage) RentSelect() ([]user.Rent, error) {
 	rentSlice := make([]user.Rent, 0)
 	for rows.Next() {
 		var rent user.Rent
-		err = rows.Scan(&rent.ID, &rent.TransportID, &rent.UserID, &rent.CostPerHour, &rent.BeginDate, &rent.EndDate, &rent.City)
+		err = rows.Scan(&rent.ID, &rent.TransportID, &rent.UserID, &rent.BeginDate, &rent.EndDate, &rent.City)
 		if err != nil {
 			return nil, fmt.Errorf("%s - config err: %w", op, err)
 		}

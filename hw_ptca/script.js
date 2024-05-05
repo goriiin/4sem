@@ -6,7 +6,7 @@ const playWithFriendButton = document.getElementById('play-with-friend');
 var game_result = {
   'rock' : 'камень',
   'scissors' : 'ножницы',
-  'rock' : 'камень'
+  'paper' : 'бумага'
 };
 
 let gameMode = null;
