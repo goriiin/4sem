@@ -129,8 +129,69 @@ std::pair<types, errors> get_ret_type(std::string &str, size_t &ptr) {
 }
 
 std::pair<int, std::vector<parametr>> get_parameters(std::string &str, size_t &ptr) {
-    return {};
+    std::vector<parametr> params;
+    parametr current_param;
+    std::string buffer;
+    bool is_param_name = false;
+
+    while (ptr < str.size() && str[ptr] != ')') {
+        char ch = str[ptr];
+
+        // Пропускаем пробелы
+        if (ch == ' ') {
+            ptr++;
+            continue;
+        }
+
+        // Проверяем на тип данных
+        if (!is_param_name) {
+            buffer.push_back(ch);
+            if (ch == '*' || ch == '[' || ch == ',' || ch == ')') {
+                if (ch == '*') {
+                    current_param.ptr_count++;
+                } else if (ch == '[') {
+                    current_param.square_count++;
+                    current_param.num.push_back(-1); // Предполагаем, что размер не указан
+                } else if (ch == ',' || ch == ')') {
+                    // Завершаем текущий параметр
+                    auto type_result = get_type(buffer);
+                    if (type_result.second != errors::NO_ERROR) {
+                        return {0, params}; // Возвращаем 0, если ошибка в типе данных
+                    }
+                    current_param.type = type_result.first;
+                    params.push_back(current_param);
+
+                    // Сброс текущего параметра
+                    current_param = parametr();
+                    buffer.clear();
+                    is_param_name = false;
+                }
+
+                if (ch != '*') {
+                    buffer.pop_back(); // Удаляем символ, который не является частью типа данных
+                }
+            }
+        } else {
+            // Считываем имя параметра
+            if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9')) {
+                current_param.ident.push_back(ch);
+            } else if (ch == ',' || ch == ')') {
+                // Завершаем текущий параметр
+                params.push_back(current_param);
+
+                // Сброс текущего параметра
+                current_param = parametr();
+                is_param_name = false;
+            }
+        }
+
+        // Переход к следующему символу
+        ptr++;
+    }
+
+    return {1, params}; // Возвращаем 1, если параметры успешно получены
 }
+
 
 std::pair<errors, std::string> find_func_identifier(std::string &str, size_t &ptr) {
     std::string name;
