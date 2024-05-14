@@ -4,8 +4,10 @@
 
 #include <iostream>
 
-extern "C" {
-void print_result(const char *res) {
-    std::cout << "results of the execution: " << res << std::endl;
-}
+extern "C"
+{
+    void print_result(const char *res)
+    {
+        std::cout << "results of the execution: " << res << std::endl;
+    }
 }
