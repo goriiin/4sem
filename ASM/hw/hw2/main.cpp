@@ -1,272 +1,215 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cctype>
 
-void run(std::istream &in, std::ostream &out);
+namespace Lexem {
+    enum Type {
+        UNKNOWN,
+        TYPE,
+        ID,
+        LPAREN,
+        RPAREN,
+        LBRACKET,
+        RBRACKET,
+        STAR,
+        COMMA,
+        SEMICOLON,
+        NUMBER,
+        COUNT
+    };
+}
 
-void remove_extra_spaces(std::string &str);
+namespace State {
+    enum Type {
+        ERROR,
+        START,
+        TYPE,
+        ID,
+        LPAREN,
+        PARAM_LIST, // Переименовано PARAMS -> PARAM_LIST для ясности
+        PARAM_STAR,
+        ARRAY_DIM, // Переименовано NUMBER -> ARRAY_DIM для ясности
+        NUMBER,
+        RPAREN,
+        END,
+        COUNT
+    };
+}
+
+// Таблица переходов автомата (исправлена)
+static const State::Type transitionTable[State::COUNT][Lexem::COUNT] = {
+        //  UNKNOWN  TYPE    ID      LPAREN  RPAREN  LBRACKET  RBRACKET  STAR  COMMA  SEMICOLON  NUMBER
+        /* ERROR */      {State::ERROR,      State::ERROR,      State::ERROR,      State::ERROR,      State::ERROR,      State::ERROR,   State::ERROR,   State::ERROR,      State::ERROR,   State::ERROR,      State::ERROR},
+        /* START */      {State::ERROR,      State::TYPE,       State::ERROR,      State::ERROR,      State::ERROR,      State::ERROR,   State::ERROR,   State::ERROR,      State::ERROR,   State::ERROR,      State::ERROR},
+        /* TYPE */       {State::ERROR,      State::ERROR,      State::ID,         State::ERROR,      State::ERROR,      State::ERROR,   State::ERROR,   State::PARAM_STAR, State::ERROR,   State::ERROR,      State::ERROR},
+        /* ID */        {State::ERROR,      State::ERROR,      State::ERROR,      State::LPAREN,      State::ERROR,      State::ERROR,   State::ERROR,   State::ERROR,      State::ERROR,   State::ERROR,      State::ERROR},
+        /* LPAREN */    {State::ERROR,      State::TYPE,       State::ERROR,      State::ERROR,      State::ERROR,      State::ERROR,   State::ERROR,   State::ERROR,      State::ERROR,   State::ERROR,      State::ERROR},
+        /* PARAM_LIST */{State::ERROR,      State::ERROR,      State::ERROR,      State::ERROR,      State::RPAREN,     State::ERROR,   State::ERROR,   State::ERROR,      State::TYPE,    State::ERROR,      State::TYPE},  // Исправлено
+        /* PARAM_STAR */{State::ERROR,      State::ERROR,      State::ID,         State::ERROR,      State::ERROR,      State::ERROR,   State::ERROR,   State::PARAM_STAR, State::ERROR,   State::ERROR,      State::ERROR},
+        /* ARRAY_DIM */  {State::ERROR,      State::ERROR,      State::ERROR,      State::ERROR,      State::ERROR,      State::NUMBER,  State::PARAM_LIST,  State::ERROR,      State::ERROR,   State::ERROR,      State::ERROR}, // Исправлено
+        /* NUMBER */    {State::ERROR,      State::ERROR,      State::ERROR,      State::ERROR,      State::ERROR,      State::ERROR,   State::ARRAY_DIM,    State::ERROR,      State::ERROR,   State::ERROR,      State::ERROR},
+        /* RPAREN */    {State::ERROR,      State::ERROR,      State::ERROR,      State::ERROR,      State::ERROR,      State::ERROR,   State::ERROR,   State::ERROR,      State::ERROR,   State::END,       State::ERROR},
+        /* END */       {State::ERROR,      State::ERROR,      State::ERROR,      State::ERROR,      State::ERROR,      State::ERROR,   State::ERROR,   State::ERROR,      State::ERROR,   State::ERROR,      State::ERROR},
+};
+
+
+Lexem::Type getLexemType(const std::string& token) {
+    if (token == "void" || token == "int" || token == "double" || token == "float" ||
+        token == "char" || token == "bool" || token=="long") {
+        return Lexem::TYPE;
+    } else if (isalpha(token[0]) || token[0] == '_') {
+        for (size_t i = 1; i < token.size(); ++i) {
+            if (!isalnum(token[i]) && token[i] != '_') {
+                return Lexem::UNKNOWN;
+            }
+        }
+        return Lexem::ID;
+    } else if (token == "(") {
+        return Lexem::LPAREN;
+    } else if (token == ")") {
+        return Lexem::RPAREN;
+    } else if (token == "[") {
+        return Lexem::LBRACKET;
+    } else if (token == "]") {
+        return Lexem::RBRACKET;
+    } else if (token == "*") {
+        return Lexem::STAR;
+    } else if (token == ",") {
+        return Lexem::COMMA;
+    } else if (token == ";") {
+        return Lexem::SEMICOLON;
+    } else if (isdigit(token[0])) {
+        for (size_t i = 1; i < token.size(); ++i) {
+            if (!isdigit(token[i])) {
+                return Lexem::UNKNOWN;
+            }
+        }
+        return Lexem::NUMBER;
+    } else {
+        return Lexem::UNKNOWN;
+    }
+}
+
+std::vector<std::string> tokenize(const std::string& input) {
+    std::vector<std::string> tokens;
+    std::string currentToken;
+
+    for (size_t i = 0; i < input.size(); ++i) {
+        char c = input[i];
+
+        if (isspace(c) || c == '(' || c == ')' || c == '[' || c == ']' || c == ',' || c == ';') {
+            if (!currentToken.empty()) {
+                tokens.push_back(currentToken);
+                currentToken.clear();
+            }
+            if (!isspace(c)) {
+                tokens.push_back(std::string(1, c));
+            }
+        } else if (c == '*') { // Обработка '*'
+            if (!currentToken.empty()) { // Если перед '*' есть символы, добавляем их как токен
+                tokens.push_back(currentToken);
+                currentToken.clear();
+            }
+            tokens.push_back("*"); // Добавляем '*' как отдельный токен
+        } else {
+            currentToken += c;
+        }
+    }
+
+    if (!currentToken.empty()) {
+        tokens.push_back(currentToken);
+    }
+
+    std::cout << "TOKENS:\n";
+    for (auto& t: tokens) {
+        std::cout << t << std::endl;
+    }
+    return tokens;
+}
+
+void printResults(const std::string& functionType,
+                  const std::string& functionName,
+                  const std::vector<std::pair<std::string, std::pair<std::string, std::vector<int>>>>& parameters) {
+    std::cout << "Function type: " << functionType << std::endl;
+    std::cout << "Function name: " << functionName << std::endl;
+    std::cout << "Parameters: " << std::endl;
+    for (const auto& param : parameters) {
+        std::cout << "  " << param.first << " "
+                  << param.second.first << ": ";
+        for (int dim : param.second.second) {
+            std::cout << "[" << dim << "]";
+        }
+        std::cout << std::endl;
+    }
+}
+
+bool analyze(const std::vector<std::string>& tokens) {
+    State::Type currentState = State::START;
+    std::string functionType;
+    std::string functionName;
+    std::vector<std::pair<std::string, std::pair<std::string, std::vector<int>>>> parameters;
+    std::pair<std::string, std::pair<std::string, std::vector<int>>> currentParam;
+
+    for (const std::string& token : tokens) {
+        Lexem::Type lexemType = getLexemType(token);
+        currentState = transitionTable[currentState][lexemType];
+
+        switch (currentState) {
+            case State::TYPE:
+                if (functionType.empty())
+                    functionType = token;
+                else
+                    currentParam.first = token; // Тип параметра
+                break;
+            case State::ID:
+                if (functionName.empty()) {
+                    functionName = token;
+                } else {
+                    currentParam.second.first = token;
+                }
+                break;
+            case State::PARAM_STAR: // Обработка указателей
+                currentParam.first += "*";
+                break;
+            case State::NUMBER:
+                currentParam.second.second.push_back(std::stoi(token));
+                break;
+            case State::PARAM_LIST:
+                if (!currentParam.second.first.empty()){
+                    parameters.push_back(currentParam);
+                }
+                currentParam = {};
+                break;
+            case State::ERROR:
+                if (!currentParam.second.first.empty()){
+                    parameters.push_back(currentParam);
+                }
+                printResults(functionType, functionName, parameters);
+                std::cout << "Error: Invalid syntax." << std::endl;
+                return false;
+            case State::END:
+                if (!currentParam.second.first.empty()){
+                    parameters.push_back(currentParam);
+                }
+                printResults(functionType, functionName, parameters);
+                return true;
+            default:
+                break;
+        }
+    }
+
+    return false;
+}
 
 int main() {
-    run(std::cin, std::cout);
-    return 0;
-}
-
-// TODO: enum с ошибками возврат <int, int> или <int> с ошибкой
-
-enum errors {
-    NO_ERROR = 0,
-    NAME_TYPE_ERROR,
-    NUM_TYPE_ERROR,
-    NUM_IDENTIFIER_ERROR,
-    NAME_IDENTIFIER_ERROR,
-    NO_SMILE,
-    PARENTHESES,
-    NO_SAD
-};
-
-enum types {
-    NO_TYPE = -1,
-    VOID = 0,
-    INT,
-    FLOAT,
-    DOUBLE,
-    CHAR,
-    BOOL
-};
-
-enum key_words {
-    SMILE, // )
-    SAD, // (
-    COMMA,
-    SEMICOLON,
-};
-
-struct parametr {
-    types type;
-    int ptr_count;
-    std::string ident;
-    int square_count;
-    std::vector<int> num; // -1 если нет, иначе UNSIGNED
-};
-
-struct func {
-    types ret_type;
-    std::string ident;
-    std::vector<parametr> parameters;
-
-    func(types _type, std::string &name, std::vector<parametr> &p) : ret_type(_type), ident(name), parameters(p) {}
-};
-
-errors check_parentheses(std::string &str, size_t &ptr);
-
-// find_func_identifier - возвращает index ошибки
-// string - возвращаем название
-std::pair<errors, std::string> find_func_identifier(std::string &str, size_t &ptr);
-
-std::pair<int, std::vector<parametr>> get_parameters(std::string &str, size_t &ptr);
-
-std::pair<types, errors> get_ret_type(std::string &str, size_t &ptr);
-
-void run(std::istream &in, std::ostream &out) {
     std::string input;
-    std::getline(in, input);
-    remove_extra_spaces(input);
-    size_t ptr = 0;
+    std::cout << "Enter procedure declaration: ";
+    std::getline(std::cin, input);
 
-    auto c = get_ret_type(input, ptr);
-    if (c.second != errors::NO_ERROR) {
-        out << "ERROR type" << c.second << std::endl;
-        return;
-    }
+    std::vector<std::string> tokens = tokenize(input);
+    analyze(tokens);
 
-    auto b = find_func_identifier(input, ptr);
-    if (b.first != errors::NO_ERROR) {
-        out << "ERROR name" << b.first << std::endl;
-        return;
-    }
-    out << b.second;
-    auto a = check_parentheses(input, ptr);
-    if (a != errors::NO_ERROR) {
-        out << "ERROR parentheses" << a << std::endl;
-        return;
-    }
-    auto p = get_parameters(input, ptr);
-    if (!p.first) {
-        out << "ERROR parameters";
-        return;
-    }
-}
-
-std::pair<types, errors> get_type(std::string &str) {
-    if (str == "int") {
-        return {types::INT, errors::NO_ERROR};
-    } else if (str == "void") {
-        return {types::VOID, errors::NO_ERROR};
-    } else if (str == "double") {
-        return {types::DOUBLE, errors::NO_ERROR};
-    } else if (str == "float") {
-        return {types::DOUBLE, errors::NO_ERROR};
-    } else if (str == "char") {
-        return {types::CHAR, errors::NO_ERROR};
-    }
-    return {types::NO_TYPE, errors::NAME_TYPE_ERROR};
-}
-
-std::pair<types, errors> get_ret_type(std::string &str, size_t &ptr) {
-    std::string type_name;
-    for (auto &ch: str) {
-        if (ch == ' ' || ch == '*')
-            break;
-
-        ++ptr;
-        type_name += ch;
-    }
-
-    if (type_name[0] >= '0' && type_name[0] <= '9')
-        return {types::NO_TYPE, errors::NUM_TYPE_ERROR};
-
-    return get_type(type_name);
-}
-
-std::pair<int, std::vector<parametr>> get_parameters(std::string &str, size_t &ptr) {
-    std::vector<parametr> params;
-    parametr current_param;
-    std::string buffer;
-    bool is_param_name = false;
-
-    while (ptr < str.size() && str[ptr] != ')') {
-        char ch = str[ptr];
-
-        // Пропускаем пробелы
-        if (ch == ' ') {
-            ptr++;
-            continue;
-        }
-
-        // Проверяем на тип данных
-        if (!is_param_name) {
-            buffer.push_back(ch);
-            if (ch == '*' || ch == '[' || ch == ',' || ch == ')') {
-                if (ch == '*') {
-                    current_param.ptr_count++;
-                } else if (ch == '[') {
-                    current_param.square_count++;
-                    current_param.num.push_back(-1); // Предполагаем, что размер не указан
-                } else if (ch == ',' || ch == ')') {
-                    // Завершаем текущий параметр
-                    auto type_result = get_type(buffer);
-                    if (type_result.second != errors::NO_ERROR) {
-                        return {0, params}; // Возвращаем 0, если ошибка в типе данных
-                    }
-                    current_param.type = type_result.first;
-                    params.push_back(current_param);
-
-                    // Сброс текущего параметра
-                    current_param = parametr();
-                    buffer.clear();
-                    is_param_name = false;
-                }
-
-                if (ch != '*') {
-                    buffer.pop_back(); // Удаляем символ, который не является частью типа данных
-                }
-            }
-        } else {
-            // Считываем имя параметра
-            if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9')) {
-                current_param.ident.push_back(ch);
-            } else if (ch == ',' || ch == ')') {
-                // Завершаем текущий параметр
-                params.push_back(current_param);
-
-                // Сброс текущего параметра
-                current_param = parametr();
-                is_param_name = false;
-            }
-        }
-
-        // Переход к следующему символу
-        ptr++;
-    }
-
-    return {1, params}; // Возвращаем 1, если параметры успешно получены
-}
-
-
-std::pair<errors, std::string> find_func_identifier(std::string &str, size_t &ptr) {
-    std::string name;
-    size_t j = ptr;
-    for (size_t i = j; i < str.size(); ++i) {
-        auto ch = str[i];
-
-        if (ch == ' ' || ch == '(')
-            break;
-        else if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9')) {
-            name += ch;
-        } else {
-            return {errors::NAME_IDENTIFIER_ERROR, ""};
-        }
-        ++ptr;
-    }
-    if (name[0] <= '9' && name[0] >= '0')
-        return {errors::NUM_IDENTIFIER_ERROR, ""};
-    return {errors::NO_ERROR,name};
-}
-
-
-
-errors check_parentheses(std::string &str, size_t &ptr) {
-    int smile_ptr = str.find('(');
-    int sad_ptr = str.find(')');
-
-    if (smile_ptr == -1){
-        std::cout << "_1er\n";
-        return errors::NO_SMILE;
-    }
-    if (sad_ptr == -1){
-        std::cout << "_2er\n";
-        return errors::NO_SAD;
-    }
-
-    std::cout << ptr << " " << smile_ptr << " " << sad_ptr;
-
-    if (smile_ptr < ptr){
-        std::cout << "_3er\n";
-        return errors::NO_SMILE;
-    }else if (smile_ptr > sad_ptr){
-        std::cout << "_4er\n";
-        return errors::PARENTHESES;
-    }
-
-    ptr = ++smile_ptr;
-    return errors::NO_ERROR;
-}
-
-void remove_extra_spaces(std::string &str) {
-    std::string out;
-
-    bool ch_flag = false;
-    bool flag = false;
-
-
-    for (auto &ch: str) {
-        if (ch == ' ' || ch == ';') {
-            if (ch == ';') {
-                out += ch;
-                break;
-            }
-            if (flag || !ch_flag) {
-                continue;
-            } else {
-                flag = true;
-                out += ch;
-            }
-        } else {
-            ch_flag = true;
-            flag = false;
-            out += ch;
-        }
-    }
-
-    str = std::move(out);
+    std::cout << getLexemType("**kk");
+    return 0;
 }
