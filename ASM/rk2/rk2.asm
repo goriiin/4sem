@@ -6,6 +6,7 @@ section .data ; сегмент инициализированных переме
     count    db 0
     strLen   db 64
     char     db 0
+    outputLen  db 0
     space_s db 20h
 
 section .bss ; сегмент неинициализированных переменных
@@ -70,10 +71,11 @@ cycl:
         movzx eax,byte [count]
         call IntToStr
 
+        mov [outputLen], eax
         mov eax, 4
         mov ebx, 1
         mov ecx, OutBuf
-        mov edx, OutLen
+        mov edx, [outputLen]
         int 80h
 
         mov eax, 4
