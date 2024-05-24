@@ -211,9 +211,7 @@ section .text
          xor rax, rax
          mov rax, r9
          imul byte[sorok]
-
-
-
+         
          mov qword[matrix + rax+r9*8], r11
 
          pop rax
