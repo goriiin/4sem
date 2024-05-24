@@ -615,7 +615,7 @@
       return config;
     }
     _mergeConfigObj(config, element) {
-      const jsonConfig = isElement$1(element) ? Manipulator.getDataAttribute(element, 'config') : {}; // try to parse
+      const jsonConfig = isElement$1(element) ? Manipulator.getDataAttribute(element, 'config') : {}; // hw2 to parse
 
       return {
         ...this.constructor.Default,
@@ -4344,7 +4344,7 @@
       });
     }
     _showElement(relatedTarget) {
-      // try to append dynamic modal
+      // hw2 to append dynamic modal
       if (!document.body.contains(this._element)) {
         document.body.append(this._element);
       }
