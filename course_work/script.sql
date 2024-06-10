@@ -253,3 +253,101 @@ create table cheque
 alter table cheque
     owner to dmitry;
 
+-- Additional logical constraints and triggers
+
+-- Check age constraint
+alter table human
+    add constraint age_check
+        check (extract(year from age(birthday)) > 18);
+
+-- Create trigger to check age
+create or replace function check_age()
+    returns trigger as
+$$
+begin
+    if extract(year from age(NEW.birthday)) <= 18 then
+        raise 'Age must be greater than 18';
+    end if;
+    return NEW;
+end;
+$$
+    language plpgsql;
+
+create trigger check_age_trigger
+    before insert or update
+    on human
+    for each row
+execute procedure check_age();
+
+-- Check phone number format constraint
+alter table "user"
+    add constraint phone_number_format_check
+        check (phone_number ~ '^\d{10}$');
+
+-- Create trigger to check phone number format
+create or replace function check_phone_number()
+    returns trigger as
+$$
+begin
+    if NEW.phone_number !~ '^\d{10}$' then
+        raise 'Invalid phone number format';
+    end if;
+    return NEW;
+end;
+$$
+    language plpgsql;
+
+create trigger check_phone_number_trigger
+    before insert or update
+    on "user"
+    for each row
+execute procedure check_phone_number();
+
+-- Check email format constraint
+alter table "user"
+    add constraint email_format_check
+        check (email ~ '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+
+-- Create trigger to check email format
+create or replace function check_email()
+    returns trigger as
+$$
+begin
+    if NEW.email !~ '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$' then
+        raise 'Invalid email format';
+    end if;
+    return NEW;
+end;
+$$
+    language plpgsql;
+
+create trigger check_email_trigger
+    before insert or update
+    on "user"
+    for each row
+execute procedure check_email();
+
+-- Check bank data format constraint
+alter table bank_data
+    add constraint card_number_format_check
+        check (num ~ '^\d{16}$');
+
+-- Create trigger to check bank data format
+create or replace function check_bank_data()
+    returns trigger as
+$$
+begin
+    if NEW.num !~ '^\d{16}$' then
+        raise 'Invalid bank data format';
+    end if;
+    return NEW;
+end;
+$$
+    language plpgsql;
+
+create trigger check_bank_data_trigger
+    before insert or update
+    on bank_data
+    for each row
+execute procedure check_bank_data();
+
